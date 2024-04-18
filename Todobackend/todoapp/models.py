@@ -12,6 +12,7 @@ class Project(models.Model):
     
 class Todo(models.Model):
     project_ref_id=models.ForeignKey(Project,on_delete=models.CASCADE)
+    title=models.CharField(max_length=300)
     description=models.CharField(max_length=300)
     status=models.CharField(max_length=15)
     created_at=models.DateTimeField(auto_now_add=True)

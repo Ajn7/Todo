@@ -1,3 +1,4 @@
-pip install django==4.0.3   
-pip install djangorestframework
-pip install django-rest-authtoken
+django==4.0.3   
+djangorestframework
+django-rest-authtoken
+django-cors-headers
