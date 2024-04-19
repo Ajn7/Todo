@@ -16,8 +16,8 @@ class Todo(models.Model):
     description=models.CharField(max_length=300)
     status=models.CharField(max_length=15)
     created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField()
+    updated_at=models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return self.description
+        return self.title
     
     

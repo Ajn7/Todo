@@ -56,13 +56,14 @@ def loginaccount_view(request):
         except User.DoesNotExist:
             return Response({"response":"User does not exist on this email."},status=status.HTTP_400_BAD_REQUEST)
         if not user.check_password(password):
-            return Response({"response":"incorrect Password"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"response":"Incorrect password"},status=status.HTTP_400_BAD_REQUEST)
         if not user:
-            return Response({'error': 'Invalid Credentials'},
+            return Response({'error': 'Invalid credentials'},
                         status=status.HTTP_404_NOT_FOUND)
+        name=User.objects.get(email=email).first_name+' '+User.objects.get(email=email).last_name
         id=User.objects.get(email=email).id
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'email':email,'id':id},
+        return Response({'token': token.key, 'email':email,'id':id,'name':name},
                     status=status.HTTP_200_OK)
     
 @api_view(['POST'])
@@ -79,10 +80,10 @@ def deleteaccount_view(request):
         # if  user is None: not working 
         #     return Response({"response":"User does not exist."}) 
         if not user.check_password(password):
-            return Response({"response":"incorrect Password"})
+            return Response({"response":"Incorrect password"})
         
         user.delete()
-        return Response({"result":"user deleted successfully"}) 
+        return Response({"result":"User deleted successfully"}) 
     
     
 @api_view(['GET'])

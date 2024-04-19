@@ -1,7 +1,9 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
+from rest_framework.response import Response
 # from todoapp.permissions import RecordUserOnly
 from  todoapp.models import Project,Todo
+from rest_framework.views import APIView
 from todoapp.api.serializers import ProjectInformationSerializer,TodoInformationSerializer #,TodoInformationListSerializer
 
     
@@ -18,12 +20,31 @@ class Project_Update(generics.RetrieveUpdateAPIView):
     permission_classes=[IsAuthenticated]
     
 #view all projects
-class ProjectRecordsView(generics.ListAPIView):
-    serializer_class = ProjectInformationSerializer
+class ProjectRecordsView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return Project.objects.filter(user=self.request.user)
+    def get(self, request, *args, **kwargs):
+        queryset = Project.objects.filter(user=request.user)
+        serializer = ProjectInformationSerializer(queryset, many=True)
+        projects_data = serializer.data
+        
+        data = {
+            'status': 'success',
+            'result': projects_data,
+            
+        }
+        
+        for projectData in projects_data:
+            project_id = projectData['project_id']
+            completed_todos_count = Todo.objects.filter(project_ref_id=project_id, status='completed').count()
+            todos_count = Todo.objects.filter(project_ref_id=project_id).count()
+            projectData['completed'] = completed_todos_count
+            projectData['total'] = todos_count
+        
+        return Response(data)
+    
+
+
     
 #create instance
 class Todo_Create(generics.CreateAPIView):
@@ -42,9 +63,20 @@ class ProjectTodoList(generics.ListCreateAPIView):
     serializer_class = TodoInformationSerializer
     permission_classes=[IsAuthenticated]
     
-    def get_queryset(self):
+    def get(self, request, *args, **kwargs):
         project_id = self.kwargs['project_id']
-        return Todo.objects.filter(project_ref_id=project_id)
+        queryset = Todo.objects.filter(project_ref_id=project_id)
+        serializer = TodoInformationSerializer(queryset, many=True)
+        todoData = serializer.data
+        
+        data = {
+            'status': 'success',
+            'result': todoData,
+            
+        }
+        
+        return Response(data)
+    
     
     
     
