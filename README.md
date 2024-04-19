@@ -33,7 +33,7 @@ After following the installation steps, open the web browser and navigate to the
 ![Untitled](https://github.com/Ajn7/Todo/assets/109603924/e48e69dd-cfd4-4943-b5e6-abcdcf2a74d5)
 ![image](https://github.com/Ajn7/Todo/assets/109603924/35423588-bb3b-4136-a893-3c284b204e16)
 ![image](https://github.com/Ajn7/Todo/assets/109603924/c8ff61c2-05a0-47e5-acea-a74e1ad25d81)
-![image](https://github.com/Ajn7/Todo/assets/109603924/8d19daa9-1891-4b89-aea0-968ef9c568a0)
+
 
 
 
