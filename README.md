@@ -24,6 +24,7 @@ Once you have the prerequisites installed, follow these steps:
 6. python manage.py runserver to run the backend
 7.Run flutter app in web app mode (eg: flutter run -d Edge)
 
-##Usage
-    After following the installation steps, open the web browser and navigate to the URL where the Flutter web app is running.
+## Usage
+
+After following the installation steps, open the web browser and navigate to the URL where the Flutter web app is running.
    
