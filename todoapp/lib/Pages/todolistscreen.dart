@@ -218,7 +218,7 @@ class _TodoListState extends State<TodoList> {
                       _headLine(title: 'Pending', color: AppConfig.pending),
                       CommonWidgets.verticalSpace(2),
                       (pendings.isEmpty)
-                          ? const Text('No pending list')
+                          ? const Text('No pending todos')
                           : ListView.builder(
                               shrinkWrap: true,
                               itemCount: pendings.length,
@@ -233,7 +233,7 @@ class _TodoListState extends State<TodoList> {
                       _headLine(title: 'Completed', color: AppConfig.completed),
                       CommonWidgets.verticalSpace(2),
                       (completed.isEmpty)
-                          ? const Text('No completed list')
+                          ? const Text('No completed todos')
                           : ListView.builder(
                               shrinkWrap: true,
                               itemCount: completed.length,
