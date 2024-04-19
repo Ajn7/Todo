@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:todoapp/Pages/CommonFunctions/common_functions.dart';
 import 'package:todoapp/Pages/homescreen.dart';
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   int? userId;
 
   bool _obscureText = true;
-  SharedPref sharedPref = SharedPref();
+
 
   bool underline = false;
   bool signup = false;
@@ -413,13 +414,29 @@ class _LoginScreenState extends State<LoginScreen> {
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 201) {
-        // Successful login
-        print('Account register successful');
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(msg: 'Registered successfully');
+        token = json.decode(response.body)['token'];
+        name = json.decode(response.body)['first_name'];
+        String lastName=json.decode(response.body)['last_name'];
+        email = json.decode(response.body)['email'];
+        userId = json.decode(response.body)['id'];
+        CommonFunctions.saveToken('token', token!);
+        CommonFunctions.saveToken('name', '$name' '$lastName');
+        CommonFunctions.saveToken('email', email!);
+        CommonFunctions.saveToken('id', userId.toString());
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        }
       } else {
+        setState(() {
+          _loading = false;
+        });
         final errorMessage = json.decode(response.body)['error'];
-        CommonWidgets.showDialogueBox(
-            context: context, msg: '$errorMessage', title: 'Errror');
+        if (mounted) {
+          CommonWidgets.showDialogueBox(
+              context: context, msg: '$errorMessage', title: 'Errror');
+        }
       }
     } catch (e) {
       setState(() {

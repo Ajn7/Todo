@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 
@@ -28,15 +29,23 @@ class _HomeScreenState extends State<HomeScreen> {
   String? token;
   String? name;
   String? email;
+  String? userId;
   bool _initDone = false;
   int total = 0;
   int completed = 0;
   double percentage = 0;
 
+  final TextEditingController _projectName = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    token = CommonFunctions.getToken('token');
+    token = CommonFunctions.getLocalData('token');
+    name = CommonFunctions.getLocalData('name');
+    email = CommonFunctions.getLocalData('email');
+    userId = CommonFunctions.getLocalData('id');
     _getProjects();
   }
 
@@ -85,7 +94,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 icon: Icons.add,
                                 title: 'Add New',
                                 textColor: AppConfig.background,
-                                function: () {})
+                                function: () {
+                                  CommonWidgets.editDialogue('project', context,
+                                      _projectName, null, false, null, () {
+                                    if (_projectName.text.isEmpty) {
+                                      Fluttertoast.showToast(
+                                          msg:
+                                              'Plesae enter valid project name',
+                                          timeInSecForIosWeb: 3);
+                                    } else {
+                                      createProject().then((value) {
+                                        _projectName.clear();
+                                        Navigator.of(context).pop();
+                                      });
+                                    }
+                                  });
+                                })
                           ],
                         ),
                         CommonWidgets.verticalSpace(2),
@@ -114,7 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     crossAxisSpacing: 18.0,
                                     mainAxisSpacing: 18.0,
                                     builder: (context, index) {
-                                      return _shimmerCards(index);
+                                      return CommonWidgets.shimmerCards(
+                                        index,
+                                        height:
+                                            SizeConfig.blockSizeVertical * 12,
+                                        width: SizeConfig.screenWidth! * 0.3,
+                                      );
                                     },
                                   ),
                                 ),
@@ -148,10 +177,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: const Icon(Icons.logout)),
                             ),
                             CommonWidgets.verticalSpace(3),
-                            const CircleAvatar(
-                              radius: 50,
-                              backgroundImage: AssetImage(
-                                'Assets/Images/Logo.png',
+                            InkWell(
+                              onTap: () {
+                                deleteDialogue(context, _email, _password, () {
+                                  if (_email.text.isEmpty) {
+                                    Fluttertoast.showToast(
+                                        msg: 'Please enter your email');
+                                  } else if (_password.text.isEmpty) {
+                                    Fluttertoast.showToast(
+                                        msg: 'Plesae enter your password');
+                                  } else {
+                                    deleteAccount();
+                                  }
+                                });
+                              },
+                              child: const CircleAvatar(
+                                radius: 50,
+                                backgroundImage: AssetImage(
+                                  'Assets/Images/Logo.png',
+                                ),
                               ),
                             ),
                             CommonWidgets.verticalSpace(1),
@@ -178,22 +222,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   const Text('Project Progress Overview'),
-                                  Text('$percentage %'),
+                                  Text('${percentage.toStringAsFixed(1)} %'),
                                 ],
                               ),
                             ),
                             CommonWidgets.verticalSpace(2),
-                            (projects.result!.isNotEmpty)
-                                ? Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Latest Project Progress',
-                                      style: TextStyle(
-                                          fontSize:
-                                              AppConfig.headLineSize * 0.8,
-                                          fontWeight: AppConfig.headLineWeight),
-                                    ),
-                                  )
+                            (_initDone)
+                                ? (projects.result!.isNotEmpty)
+                                    ? Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Latest Project Progress',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  AppConfig.headLineSize * 0.8,
+                                              fontWeight:
+                                                  AppConfig.headLineWeight),
+                                        ),
+                                      )
+                                    : Container()
                                 : Container(),
                             (_initDone)
                                 ? (projects.result!.isNotEmpty)
@@ -213,12 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             .result![index]
                                                             .total !=
                                                         0)
-                                                    ? (projects.result![index]
-                                                            .completed! /
-                                                        projects.result![index]
-                                                            .total! *
-                                                        100)
-                                                    : 0)
+                                                    ? '${((projects.result![index].completed! / projects.result![index].total! * 100)).toStringAsFixed(2)} %'
+                                                    : '0 Todos')
                                           ]);
                                         },
                                       )
@@ -248,9 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (_) => TodoList(
                       projectId: projects.result![index].projectId.toString(),
                       title: projects.result![index].title,
-                      progress:
-                          '${projects.result![index].completed}/${projects.result![index].total}',
-                    )));
+                    ))).then((value) => _getProjects());
       },
       child: Container(
         height: SizeConfig.blockSizeVertical * 12,
@@ -264,16 +305,49 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                projects.result![index].createdAt!.substring(0, 10),
-                style: TextStyle(
-                    fontSize: AppConfig.headLineSize * 0.7,
-                    color: AppConfig.background),
+              Row(
+                children: [
+                  Text(
+                    projects.result![index].createdAt!.substring(0, 10),
+                    style: TextStyle(
+                        fontSize: AppConfig.headLineSize * 0.7,
+                        color: AppConfig.background),
+                  ),
+                  const Spacer(),
+                  InkWell(
+                    onTap: () {
+                      CommonWidgets.editDialogue(
+                          'delete', context, null, null, false, 'null', () {
+                        deleteProject(projects.result![index].projectId!)
+                            .then((value) => Navigator.of(context).pop());
+                      });
+                    },
+                    child: Icon(
+                      Icons.delete,
+                      color: AppConfig.hold.withOpacity(0.9),
+                    ),
+                  ),
+                ],
               ),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  CommonWidgets.editDialogue('project', context, _projectName,
+                      null, true, projects.result![index].title ?? '', () {
+                    if (_projectName.text.isEmpty) {
+                      Fluttertoast.showToast(
+                          msg: 'Plesae enter valid project name',
+                          timeInSecForIosWeb: 3);
+                    } else {
+                      editProject(projects.result![index].projectId!)
+                          .then((value) {
+                        _projectName.clear();
+                        Navigator.of(context).pop();
+                      });
+                    }
+                  });
+                },
                 child: Text(
-                  projects.result![index].title ?? '--',
+                  projects.result![index].title ?? '',
                   style: TextStyle(
                       fontSize: AppConfig.headLineSize,
                       fontWeight: AppConfig.headLineWeight,
@@ -287,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _progressContainer({required String title, required num progress}) {
+  _progressContainer({required String title, required var progress}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(
@@ -308,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('$title :'),
             CommonWidgets.horizontalSpace(1),
             Text(
-              '$progress %',
+              progress,
               style: const TextStyle(color: AppConfig.colorPrimary),
             ),
           ],
@@ -353,20 +427,6 @@ class _HomeScreenState extends State<HomeScreen> {
         CommonWidgets.showServerErrors(context);
       }
     }
-  }
-
-  Widget _shimmerCards(int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CommonWidgets.verticalSpace(2),
-        CommonWidgets.loadingContainers(
-          height: SizeConfig.blockSizeVertical * 12,
-          width: SizeConfig.screenWidth! * 0.3,
-        ),
-      ],
-    );
   }
 
   Future<void> _showMyDialog(BuildContext context) async {
@@ -430,5 +490,153 @@ class _HomeScreenState extends State<HomeScreen> {
         CommonWidgets.showServerErrors(context);
       }
     }
+  }
+
+  Future deleteAccount() async {
+    try {
+      const String apiUrl = 'http://127.0.0.1:8000/api/accounts/delete/';
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: json.encode({
+          'email': _email.text,
+          'password': _password.text,
+        }),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Token $token"
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(msg: 'Account deleted successfully');
+        Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+      } else {
+        final errorMessage = json.decode(response.body)['response'];
+        if (mounted) {
+          Navigator.pop(context);
+          CommonWidgets.showDialogueBox(
+              context: context, msg: '$errorMessage', title: 'Errror');
+        }
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        CommonWidgets.showServerErrors(context);
+      }
+    }
+  }
+
+  Future createProject() async {
+    try {
+      const String apiUrl = 'http://127.0.0.1:8000/api/project_add/';
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: json.encode({
+          'user': userId,
+          'title': _projectName.text,
+        }),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Token $token"
+        },
+      );
+
+      if (response.statusCode == 201) {
+        _getProjects();
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        CommonWidgets.showServerErrors(context);
+      }
+    }
+  }
+
+  Future editProject(int id) async {
+    try {
+      String apiUrl = 'http://127.0.0.1:8000/api/project/$id/';
+
+      final response = await http.put(
+        Uri.parse(apiUrl),
+        body: json.encode({
+          'user': userId,
+          'title': _projectName.text,
+        }),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Token $token"
+        },
+      );
+
+      if (response.statusCode == 200) {
+        _getProjects();
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        CommonWidgets.showServerErrors(context);
+      }
+    }
+  }
+
+  Future deleteProject(int id) async {
+    try {
+      String apiUrl = 'http://127.0.0.1:8000/api/project/$id/';
+
+      final response = await http.delete(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Token $token"
+        },
+      );
+
+      if (response.statusCode == 204) {
+        _getProjects();
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        CommonWidgets.showServerErrors(context);
+      }
+    }
+  }
+
+  Future<void> deleteDialogue(
+      BuildContext context,
+      TextEditingController? controller,
+      TextEditingController? controller2,
+      VoidCallback function) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                (controller != null)
+                    ? CommonWidgets.textContainer('Email', null, controller)
+                    : Container(),
+                CommonWidgets.verticalSpace(1),
+                (controller2 != null)
+                    ? CommonWidgets.textContainer('Password', null, controller2)
+                    : Container()
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                (controller != null) ? controller.clear() : null;
+                (controller2 != null) ? controller2.clear() : null;
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(onPressed: function, child: const Text('Delete'))
+          ],
+        );
+      },
+    );
   }
 }

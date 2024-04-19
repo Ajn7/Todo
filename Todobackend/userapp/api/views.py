@@ -2,12 +2,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework import permissions
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from userapp import models #importing token signals
+from userapp import models 
 
 from django.contrib.auth import login
 from userapp.api.serializers import RegistrationSerializer
@@ -66,24 +63,27 @@ def loginaccount_view(request):
         return Response({'token': token.key, 'email':email,'id':id,'name':name},
                     status=status.HTTP_200_OK)
     
+
 @api_view(['POST'])
 def deleteaccount_view(request):
-    #permission_classes = [permissions.IsAuthenticated]
     if request.method == 'POST':
-        email=request.POST["email"]
-        password=request.POST["password"]
-        #user =authenticate(username=username, password=password)
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        
+        if not email or not password:
+            return Response({"response": "Email and password are required."}, status=400)
+
         try:
-            user=User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"response":"User does not exist."})
-        # if  user is None: not working 
-        #     return Response({"response":"User does not exist."}) 
+            return Response({"response": "User does not exist."}, status=404)
+     
         if not user.check_password(password):
-            return Response({"response":"Incorrect password"})
+            return Response({"response": "Incorrect password"}, status=401)
         
         user.delete()
-        return Response({"result":"User deleted successfully"}) 
+        return Response({"result": "User deleted successfully"},status=200)
     
     
 @api_view(['GET'])

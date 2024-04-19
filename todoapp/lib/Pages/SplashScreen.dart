@@ -4,7 +4,6 @@ import 'package:todoapp/Pages/login_screen.dart';
 
 import 'Config/app_config.dart';
 import 'Config/size_config.dart';
-//import 'Models/AppState.dart';
 import 'Utilities/sharedpref.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,7 +17,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool callAppConfig = false;
   bool initDone = false;
-  //AppState appState = AppState();
 
   @override
   void initState() {
@@ -33,7 +31,6 @@ class _SplashScreenState extends State<SplashScreen> {
   _initAppState() async {
     SharedPref sharedPref = SharedPref();
     bool appStateRetrieved = false;
-    //AppState appState = AppState();
     appStateRetrieved = await sharedPref.containsKey('app_state');
     print('Init App');
 

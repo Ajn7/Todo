@@ -205,13 +205,124 @@ class CommonWidgets {
   static Widget loadingContainers(
       {required double height, required double width}) {
     return Container(
-      margin:  const EdgeInsets.all(10.0),
+      margin: const EdgeInsets.all(10.0),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         color: AppConfig.grey,
       ),
       height: height,
       width: width,
+    );
+  }
+
+  static Widget textContainer(
+      String title, dynamic icon, TextEditingController controller) {
+    return Container(
+        height: SizeConfig.blockSizeVertical * 8,
+        width: SizeConfig.blockSizeHorizontal * 28,
+        decoration: BoxDecoration(
+          color: AppConfig.colorPrimary.withOpacity(0.05),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: controller,
+                  obscureText: false,
+                  enableSuggestions: (title == "Password") ? false : true,
+                  autocorrect: (title == "Password") ? false : true,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: title,
+                    alignLabelWithHint: false,
+                    hintStyle: const TextStyle(
+                      color: Colors.black38,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  static Future<void> editDialogue(
+      String title,
+      BuildContext context,
+      TextEditingController? controller,
+      TextEditingController? controller2,
+      bool isEdit,
+      String? data,
+      VoidCallback function) async {
+    if (isEdit && controller != null) {
+      controller.text = data!;
+    } else if (isEdit && controller2 != null) {
+      controller2.text = data!;
+    }
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: (title == 'delete')
+              ? const Text('Delete Item?')
+              : (isEdit)
+                  ? const Text('Edit')
+                  : const Text('Add New'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                (controller != null)
+                    ? CommonWidgets.textContainer(
+                        (title == 'project') ? 'Project Name' : 'Title',
+                        null,
+                        controller)
+                    : Container(),
+                CommonWidgets.verticalSpace(1),
+                (controller2 != null)
+                    ? CommonWidgets.textContainer(
+                        'Description', null, controller2)
+                    : Container()
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                (controller != null) ? controller.clear() : null;
+                (controller2 != null) ? controller2.clear() : null;
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              onPressed: function,
+              child: (title == 'delete')
+                  ? const Text('Delete')
+                  : const Text('Save'),
+            )
+          ],
+        );
+      },
+    );
+  }
+    static Widget shimmerCards(int index,{required double height,required double width}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CommonWidgets.verticalSpace(2),
+        CommonWidgets.loadingContainers(
+          height: height,
+          width: width
+        ),
+      ],
     );
   }
 }

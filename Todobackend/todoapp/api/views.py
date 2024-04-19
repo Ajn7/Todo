@@ -1,7 +1,6 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.response import Response
-# from todoapp.permissions import RecordUserOnly
 from  todoapp.models import Project,Todo
 from rest_framework.views import APIView
 from todoapp.api.serializers import ProjectInformationSerializer,TodoInformationSerializer #,TodoInformationListSerializer
@@ -14,7 +13,7 @@ class Project_Create(generics.CreateAPIView):
     permission_classes=[IsAuthenticated]
     
 #update instance
-class Project_Update(generics.RetrieveUpdateAPIView):
+class Project_Update(generics.RetrieveUpdateAPIView,generics.DestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectInformationSerializer
     permission_classes=[IsAuthenticated]
@@ -53,8 +52,8 @@ class Todo_Create(generics.CreateAPIView):
     permission_classes=[IsAuthenticated]
     
 #update instance
-class Todo_Update(generics.RetrieveUpdateAPIView):
-    queryset = Project.objects.all()
+class Todo_Update(generics.RetrieveUpdateAPIView,generics.DestroyAPIView):
+    queryset = Todo.objects.all()
     serializer_class = TodoInformationSerializer
     permission_classes=[IsAuthenticated]
 

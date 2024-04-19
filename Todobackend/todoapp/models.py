@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Project(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE) #user means user_id
-    project_id=models.IntegerField(primary_key=True)
+    project_id=models.AutoField(primary_key=True)
     title=models.CharField(max_length=300)
     created_at=models.DateTimeField(auto_now_add=True)
     def __str__(self):
