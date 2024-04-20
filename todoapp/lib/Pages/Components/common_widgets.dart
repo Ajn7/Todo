@@ -59,9 +59,11 @@ class CommonWidgets {
       required double radius,
       required IconData icon,
       required VoidCallback function}) {
-    return SizedBox(
+    return Container(
       height: height,
-      width: width,
+      constraints: BoxConstraints(
+        minWidth: width,
+      ),
       child: ElevatedButton(
         style: ButtonStyle(
           shape: MaterialStatePropertyAll(
@@ -312,16 +314,15 @@ class CommonWidgets {
       },
     );
   }
-    static Widget shimmerCards(int index,{required double height,required double width}) {
+
+  static Widget shimmerCards(int index,
+      {required double height, required double width}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CommonWidgets.verticalSpace(2),
-        CommonWidgets.loadingContainers(
-          height: height,
-          width: width
-        ),
+        CommonWidgets.loadingContainers(height: height, width: width),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
@@ -294,7 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ))).then((value) => _getProjects());
       },
       child: Container(
-        height: SizeConfig.blockSizeVertical * 12,
+        constraints: BoxConstraints(
+          minHeight: SizeConfig.blockSizeVertical * 12,
+        ),
         width: SizeConfig.screenWidth! * 0.3,
         decoration: const BoxDecoration(
             color: AppConfig.colorPrimary,
@@ -330,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               InkWell(
-                onTap: () {
+                onDoubleTap: () {
                   CommonWidgets.editDialogue('project', context, _projectName,
                       null, true, projects.result![index].title ?? '', () {
                     if (_projectName.text.isEmpty) {
@@ -371,13 +374,15 @@ class _HomeScreenState extends State<HomeScreen> {
           color: AppConfig.grey,
         ),
       ),
+      constraints: BoxConstraints(
+        minHeight: SizeConfig.blockSizeHorizontal * 5,
+      ),
       width: SizeConfig.blockSizeVertical * 30,
-      height: SizeConfig.blockSizeHorizontal * 5,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Row(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('$title :'),
             CommonWidgets.horizontalSpace(1),

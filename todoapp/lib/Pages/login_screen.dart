@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'Components/common_widgets.dart';
 import 'Config/app_config.dart';
 import 'Config/size_config.dart';
-import 'Utilities/sharedpref.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = "/LoginScreen";
@@ -31,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
   int? userId;
 
   bool _obscureText = true;
-
 
   bool underline = false;
   bool signup = false;
@@ -66,227 +64,241 @@ class _LoginScreenState extends State<LoginScreen> {
                         const CircularProgressIndicator.adaptive(),
                         const Text('Please wait a moment...'),
                       ])
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CommonWidgets.verticalSpace(7),
-                      Card(
-                        shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: SizedBox(
-                          width: SizeConfig.screenWidth! * 0.3,
-                          height: (signup)
-                              ? SizeConfig.screenHeight! * 1.05
-                              : SizeConfig.screenHeight! * 0.7,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                CommonWidgets.verticalSpace(5),
-                                Text(
-                                  (signup) ? 'Create Account' : 'Welcome Back',
-                                  style: TextStyle(
-                                      color: AppConfig.textBlack,
-                                      fontSize: AppConfig.headLineSize * 1.5,
-                                      fontWeight: AppConfig.headLineWeight),
-                                ),
-                                (signup)
-                                    ? Container()
-                                    : CommonWidgets.verticalSpace(2),
-                                (signup)
-                                    ? Container()
-                                    : Text(
-                                        'Enter your email and password to access your account',
-                                        style: TextStyle(
-                                          color: AppConfig.textBlack,
-                                          fontSize:
-                                              AppConfig.headLineSize * 0.7,
-                                        ),
-                                      ),
-                                CommonWidgets.verticalSpace(3),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Email'),
-                                    CommonWidgets.verticalSpace(0.5),
-                                    textContainer(
-                                        'Enter your email', null, _email),
-                                    CommonWidgets.verticalSpace(2),
+                : SizedBox(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CommonWidgets.verticalSpace(7),
+                        Card(
+                          shape: ContinuousRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: SizedBox(
+                            width: SizeConfig.screenWidth! * 0.3,
+                            height: (signup)
+                                ? SizeConfig.screenHeight! * 1.05
+                                : SizeConfig.screenHeight! * 0.7,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  CommonWidgets.verticalSpace(5),
+                                  Text(
                                     (signup)
-                                        ? const Text('First Name')
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(0.5)
-                                        : Container(),
-                                    (signup)
-                                        ? textContainer('Enter your first Name',
-                                            null, _firstName)
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(2)
-                                        : Container(),
-                                    (signup)
-                                        ? const Text('Last Name')
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(0.5)
-                                        : Container(),
-                                    (signup)
-                                        ? textContainer('Enter your last Name',
-                                            null, _lastName)
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(2)
-                                        : Container(),
-                                    const Text('Password'),
-                                    CommonWidgets.verticalSpace(0.5),
-                                    textContainer(
-                                        'Password',
-                                        Icons.remove_red_eye_outlined,
-                                        _password),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(2)
-                                        : Container(),
-                                    (signup)
-                                        ? const Text('Confirm Password')
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(0.5)
-                                        : Container(),
-                                    (signup)
-                                        ? textContainer('Confirm Password',
-                                            null, _password2)
-                                        : Container(),
-                                    (signup)
-                                        ? CommonWidgets.verticalSpace(2)
-                                        : Container(),
-                                    CommonWidgets.verticalSpace(6),
-                                    Center(
-                                      child: CommonWidgets.button(
-                                          bgColor: AppConfig.colorPrimary,
-                                          textColor: AppConfig.background,
-                                          function: (signup)
-                                              ? () {
-                                                  if (_email.text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please enter email");
-                                                  } else if (_firstName
-                                                      .text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please enter first name");
-                                                  } else if (_lastName
-                                                      .text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please enter last name");
-                                                  } else if (_password
-                                                      .text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please enter password");
-                                                  } else if (_password2
-                                                      .text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please re-enter password");
-                                                  } else if (_password2.text !=
-                                                      _password.text) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Password and confirm password does not match");
-                                                  } else {
-                                                    createAccount();
-                                                  }
-                                                }
-                                              : () {
-                                                  if (_password.text.isEmpty ||
-                                                      _email.text.isEmpty) {
-                                                    CommonWidgets.showDialogueBox(
-                                                        context: context,
-                                                        title: 'Error',
-                                                        msg:
-                                                            "Please enter valid Email and Password");
-                                                  } else {
-                                                    login();
-                                                  }
-                                                },
-                                          height:
-                                              SizeConfig.blockSizeVertical * 8,
-                                          width:
-                                              SizeConfig.blockSizeHorizontal *
-                                                  25,
-                                          radius: 10,
-                                          title:
-                                              (signup) ? 'Sign Up' : 'Sign In'),
-                                    ),
-                                    CommonWidgets.verticalSpace(2),
-                                    Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            signup = !signup;
-                                            _email.clear();
-                                            _password.clear();
-                                          });
-                                        },
-                                        onHover: (value) {
-                                          setState(() {
-                                            underline = value;
-                                          });
-                                        },
-                                        borderRadius: BorderRadius.circular(10),
-                                        splashColor: AppConfig.colorPrimary
-                                            .withOpacity(0.1),
-                                        child: RichText(
-                                          text: TextSpan(
-                                            text: (signup)
-                                                ? 'Already have an account? '
-                                                : 'Don\'t have an account? ',
-                                            style: TextStyle(
-                                              decoration: (underline)
-                                                  ? TextDecoration.underline
-                                                  : null,
-                                            ),
-                                            children: <TextSpan>[
-                                              TextSpan(
-                                                text: (signup)
-                                                    ? 'Sign in'
-                                                    : 'Create one!',
-                                                style: TextStyle(
-                                                    decoration: (underline)
-                                                        ? TextDecoration
-                                                            .underline
-                                                        : null,
-                                                    color:
-                                                        AppConfig.colorPrimary),
-                                              ),
-                                            ],
+                                        ? 'Create Account'
+                                        : 'Welcome Back',
+                                    style: TextStyle(
+                                        color: AppConfig.textBlack,
+                                        fontSize: AppConfig.headLineSize * 1.5,
+                                        fontWeight: AppConfig.headLineWeight),
+                                  ),
+                                  (signup)
+                                      ? Container()
+                                      : CommonWidgets.verticalSpace(2),
+                                  (signup)
+                                      ? Container()
+                                      : Text(
+                                          'Enter your email and password to access your account',
+                                          style: TextStyle(
+                                            color: AppConfig.textBlack,
+                                            fontSize:
+                                                AppConfig.headLineSize * 0.7,
                                           ),
                                         ),
+                                  CommonWidgets.verticalSpace(3),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Email'),
+                                      CommonWidgets.verticalSpace(0.5),
+                                      textContainer(
+                                          'Enter your email', null, _email),
+                                      CommonWidgets.verticalSpace(2),
+                                      (signup)
+                                          ? const Text('First Name')
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(0.5)
+                                          : Container(),
+                                      (signup)
+                                          ? textContainer(
+                                              'Enter your first Name',
+                                              null,
+                                              _firstName)
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(2)
+                                          : Container(),
+                                      (signup)
+                                          ? const Text('Last Name')
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(0.5)
+                                          : Container(),
+                                      (signup)
+                                          ? textContainer(
+                                              'Enter your last Name',
+                                              null,
+                                              _lastName)
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(2)
+                                          : Container(),
+                                      const Text('Password'),
+                                      CommonWidgets.verticalSpace(0.5),
+                                      textContainer(
+                                          'Password',
+                                          Icons.remove_red_eye_outlined,
+                                          _password),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(2)
+                                          : Container(),
+                                      (signup)
+                                          ? const Text('Confirm Password')
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(0.5)
+                                          : Container(),
+                                      (signup)
+                                          ? textContainer('Confirm Password',
+                                              null, _password2)
+                                          : Container(),
+                                      (signup)
+                                          ? CommonWidgets.verticalSpace(2)
+                                          : Container(),
+                                      CommonWidgets.verticalSpace(6),
+                                      Center(
+                                        child: CommonWidgets.button(
+                                            bgColor: AppConfig.colorPrimary,
+                                            textColor: AppConfig.background,
+                                            function: (signup)
+                                                ? () {
+                                                    if (_email.text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please enter email");
+                                                    } else if (_firstName
+                                                        .text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please enter first name");
+                                                    } else if (_lastName
+                                                        .text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please enter last name");
+                                                    } else if (_password
+                                                        .text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please enter password");
+                                                    } else if (_password2
+                                                        .text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please re-enter password");
+                                                    } else if (_password2
+                                                            .text !=
+                                                        _password.text) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Password and confirm password does not match");
+                                                    } else {
+                                                      createAccount();
+                                                    }
+                                                  }
+                                                : () {
+                                                    if (_password
+                                                            .text.isEmpty ||
+                                                        _email.text.isEmpty) {
+                                                      CommonWidgets.showDialogueBox(
+                                                          context: context,
+                                                          title: 'Error',
+                                                          msg:
+                                                              "Please enter valid Email and Password");
+                                                    } else {
+                                                      login();
+                                                    }
+                                                  },
+                                            height:
+                                                SizeConfig.blockSizeVertical *
+                                                    8,
+                                            width:
+                                                SizeConfig.blockSizeHorizontal *
+                                                    25,
+                                            radius: 10,
+                                            title: (signup)
+                                                ? 'Sign Up'
+                                                : 'Sign In'),
                                       ),
-                                    )
-                                  ],
-                                ),
-                              ],
+                                      CommonWidgets.verticalSpace(2),
+                                      Center(
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              signup = !signup;
+                                              _email.clear();
+                                              _password.clear();
+                                            });
+                                          },
+                                          onHover: (value) {
+                                            setState(() {
+                                              underline = value;
+                                            });
+                                          },
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          splashColor: AppConfig.colorPrimary
+                                              .withOpacity(0.1),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: (signup)
+                                                  ? 'Already have an account? '
+                                                  : 'Don\'t have an account? ',
+                                              style: TextStyle(
+                                                decoration: (underline)
+                                                    ? TextDecoration.underline
+                                                    : null,
+                                              ),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: (signup)
+                                                      ? 'Sign in'
+                                                      : 'Create one!',
+                                                  style: TextStyle(
+                                                      decoration: (underline)
+                                                          ? TextDecoration
+                                                              .underline
+                                                          : null,
+                                                      color: AppConfig
+                                                          .colorPrimary),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
           ),
         ),
@@ -295,20 +307,23 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget textContainer(
-      String title, dynamic icon, TextEditingController _controller) {
+      String title, dynamic icon, TextEditingController controller) {
     return Container(
         height: SizeConfig.blockSizeVertical * 8,
         width: SizeConfig.blockSizeHorizontal * 28,
         decoration: BoxDecoration(
-            color: AppConfig.colorPrimary.withOpacity(0.05),
-            borderRadius: const BorderRadius.all(Radius.circular(10))),
+          color: AppConfig.colorPrimary.withOpacity(0.05),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
         child: Row(
           children: [
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                  controller: _controller,
+                  controller: controller,
                   obscureText: (title == "Password") ? _obscureText : false,
                   enableSuggestions: (title == "Password") ? false : true,
                   autocorrect: (title == "Password") ? false : true,
@@ -418,7 +433,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Fluttertoast.showToast(msg: 'Registered successfully');
         token = json.decode(response.body)['token'];
         name = json.decode(response.body)['first_name'];
-        String lastName=json.decode(response.body)['last_name'];
+        String lastName = json.decode(response.body)['last_name'];
         email = json.decode(response.body)['email'];
         userId = json.decode(response.body)['id'];
         CommonFunctions.saveToken('token', token!);
